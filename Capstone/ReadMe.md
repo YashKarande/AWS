@@ -1,9 +1,6 @@
-#PROBLEM
+## PROBLEM STATEMENT
 
-Project Overview
-This project provides you with an opportunity to demonstrate the solution design skills that you develop throughout this course. Your assignment is to design and deploy a solution for the following case.
-
-By the end of this project, you should be able to apply the architectural design principles that you learned in this course to:
+### Project Overview
 
 Deploy a PHP application that runs on an Amazon Elastic Compute Cloud (Amazon EC2) instance
 Create a database instance that the PHP application can query
@@ -23,9 +20,10 @@ Shirley approached your team to make sure that her current design follows best p
 
 The following summary lists the solution requirements, and provides a diagram of the current environment.
 
-start architecture
-
-Solution requirements -
++ Architecture
+![image](https://github.com/YashKarande/AWS/assets/100131156/486826af-a092-473b-9570-753da48aae90)
++ Solution requirements -
+```
 Provide secure hosting of the MySQL database
 
 Provide secure access for an administrative user
@@ -46,20 +44,30 @@ The following parameters are used by the PHP application to connect to the datab
 /example/username
 /example/password
 /example/database
+```
+
+## SOLUTION
+
+### ARCHITECTURE
+
+![clemson-final-project](https://github.com/YashKarande/AWS/assets/100131156/41fe342d-62ab-4a71-ac1d-7c8cf0102bf9)
 
 
-#SOLUTION:
 
-#ARCHITECTURE
+### RESOURCES USED
 
-![image](https://github.com/YashKarande/AWS/assets/100131156/486826af-a092-473b-9570-753da48aae90)
++ VPC
++ EC2
++ RDS
++ IAM
++ CloudFront
++ SystemsManager
++ Cloud9
++ CodeCommit
++ CodePipeline
++ CloudFormation
 
-
-#RESOURCES USED
-
-VPC,EC2,RDS,IAM,CloudFront,SystemsManager,Cloud9,CodeCommit,CodePipeline,CloudFormation
-
-#DESCRIPTION
+### DESCRIPTION
 Deployed a secure and highly available solution for hosting a PHP application on EC2 using an ALB, auto-scaling, and EC2 launch template, leveraging services such as VPC, EC2, RDS, and SystemsManager: The project involved architecting and implementing a robust and scalable infrastructure using Amazon EC2 instances. By leveraging the VPC service like Security groups and ACLs, I designed a secure networking environment for the PHP application. The use of an Application Load Balancer (ALB) ensured high availability and efficient distribution of incoming traffic to multiple EC2 instances. Auto-scaling capabilities were configured to dynamically adjust the number of EC2 instances based on traffic demands. Additionally, an EC2 launch template was utilized to streamline the provisioning and management of EC2 instances. Services like RDS and Systems Manager were integrated to further enhance the scalability, security, and operational efficiency of the deployed solution.
 
 Configured secure access through Bastion Host for administrators, ensuring security to backend systems and sensitive data: To provide secure access to the backend systems and protect sensitive data, a Bastion Host was implemented. This secure jump server allowed administrators to securely connect to the infrastructure, minimizing the exposure of sensitive resources to the public internet. By enforcing secure access through the Bastion Host, the project ensured that only authorized administrators could access and manage the infrastructure, reducing the risk of unauthorized access and potential security breaches by configuring Security Groups and ACLs.
