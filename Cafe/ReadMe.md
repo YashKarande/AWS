@@ -10,7 +10,7 @@ The goal was to adopt a Pilot Light strategy: only the critical components like 
 
 ## Architecture
 
-## Cafe 
+### Cafe Business
 
 ![image](https://github.com/YashKarande/AWS/assets/100131156/1dd06ad9-8c05-4d85-9963-0fb6b692adf6)
 ![image](https://github.com/YashKarande/AWS/assets/100131156/31529058-2c7e-4870-8092-a58dce0841a9)
