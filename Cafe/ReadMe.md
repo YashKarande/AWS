@@ -27,16 +27,23 @@ By combining these resources, the architecture provides a comprehensive and scal
 
 ## Implementation:
 
-I began by identifying what needed to persist vs. what could be recreated.
+The disaster recovery (DR) strategy was designed by first distinguishing between components that required persistence and those that could be recreated on demand.
 
-First, I enabled Multi-AZ replication for RDS, which was essential for database-level resilience. This ensures there's a hot standby in another AZ that can be automatically promoted during a failover. I chose Multi-AZ deployment instead of running a full-read replica setup to keep cost and complexity low.
-Next, I created AMIs of the frontend and backend EC2 instances. I stored these AMIs in S3 and used CloudFormation templates to dynamically recreate the environment in another AZ. The decision to use CloudFormation was based on two factors: speed of reproducibility and auditability.
-I also made sure the application tier could dynamically connect to RDS by using SSM Parameter Store to store environment-specific database endpoints and credentials. This allowed redeployed EC2 instances to securely pull connection details during launch.
-Then, I deployed a given Lambda function that serves as the DR orchestrator. It Deploys CloudFormation stacks that recreate ALB, security groups, EC2 instances, IAM roles, and auto-scaling configs. Retrieves the AMI ID from Parameter Store. Updates Route 53 failover records to point the domain to the new ALB in the secondary AZ.
-To tie everything together, I set up health checks in Route 53 for the primary AZ’s ALB. If that check fails, it triggers the Lambda failover logic using Amazon EventBridge rules.
-Once the setup was complete, I conducted two tests to verify the DR strategy.
-In the first test, I simulated a database outage by shutting down the primary RDS instance. Within 90 seconds, AWS promoted the standby to primary. The application continued running without any manual intervention, confirming that RDS Multi-AZ failover was working as expected. I verified application functionality and database consistency post-failover.
-In the second test, I simulated an entire AZ failure by shutting down the entire AZ. The Route 53 health check failed, which triggered the Lambda function. CloudFormation stacks were launched in the secondary AZ. EC2s were up and connected to the standby RDS via parameters pulled from SSM. DNS was updated to point to the new ALB in the secondary AZ. The entire process was completed in under 17 minutes, beating the RTO target.
+At the data layer, Amazon RDS Multi-AZ replication was enabled to provide database-level resilience. This configuration maintains a hot standby in a separate Availability Zone (AZ), allowing automatic promotion during failover events. A Multi-AZ deployment was selected instead of read replicas to minimize operational complexity and cost while still meeting availability requirements.
+
+For the application layer, Amazon Machine Images (AMIs) were created for both frontend and backend EC2 instances. These AMIs were stored in Amazon S3 and used by AWS CloudFormation templates to dynamically recreate infrastructure in a secondary AZ. CloudFormation was chosen to ensure rapid reproducibility and maintain auditability of infrastructure changes.
+
+To support dynamic configuration, AWS Systems Manager Parameter Store was used to store environment-specific database endpoints and credentials. This allowed newly launched EC2 instances to securely retrieve the correct RDS connection details at startup without hardcoding values.
+
+A Lambda-based DR orchestrator was deployed to automate the failover process. The function performs the following actions:
+
+Deploys CloudFormation stacks to recreate the ALB, security groups, EC2 instances, IAM roles, and Auto Scaling configurations
+
+Retrieves the appropriate AMI IDs from Parameter Store
+
+Updates Amazon Route 53 failover records to redirect traffic to the new ALB in the secondary AZ
+
+To enable automated detection, Route 53 health checks were configured against the primary AZ’s ALB. When a health check failure is detected, Amazon EventBridge triggers the Lambda failover workflow.
 
 ## Result:
 As a result, The two DR tests
@@ -45,8 +52,12 @@ Database failover:
 
     Recovery in 90 seconds
 
+The primary RDS instance was intentionally taken offline to simulate a database outage. Within approximately 90 seconds, AWS automatically promoted the standby instance to primary. The application continued operating without manual intervention, confirming that RDS Multi-AZ failover functioned as expected. Post-failover verification confirmed application availability and database consistency.
+
 Full AZ Down:
 
     Recovery in ~16 minutes
 
-Both well within the 20-minute RTO.
+A full AZ outage was simulated by disabling all resources in the primary AZ. The Route 53 health check failed, triggering the Lambda orchestration process. CloudFormation stacks were launched in the secondary AZ, EC2 instances retrieved configuration data from SSM Parameter Store, and DNS records were updated to point to the newly created ALB. The complete recovery process finished in under 17 minutes, successfully meeting and exceeding the defined RTO.
+
+Both are well within the 20-minute RTO.
