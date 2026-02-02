@@ -1,4 +1,4 @@
-
+# Cafe Business
 ## Abstract:
 I worked on a capstone project, where I tested a Pilot Light Disaster Recovery strategy for a 3-tier web application architecture in AWS. I designed and executed two real-world DR simulations—shutting down just the database in one, and the entire AZ in another—to validate this approach.
 
